@@ -45,7 +45,6 @@ export default {
 
 // function to get the objectives using the api
   fetch() {
-    console.log("call made successfully");
     let editor
     //  to check get the reference of active editor in atom
     if (editor = atom.workspace.getActiveTextEditor()) {
@@ -54,9 +53,9 @@ export default {
     // call to download function to get the objectives from api
     this.download(selection).then( objective => {
           // call the method to display the result
-          this.showResult("objective to complete the view");
+          this.showResult(["objective", "to", "complete", "the", "view"]);
         }).catch( error => {
-          this.showResult("objective to complete the view");
+          this.showResult(["objective", "to", "complete", "the", "view"]);
           // if error in response display the error message on the modal
           atom.notifications.addWarning(error.reason);
         });
@@ -93,7 +92,7 @@ export default {
   },
 
   // function to show the result in the resut view
-  showResult(objective){
+  showResult(objectiveArray){
     // resgistered uri of the result view
     uri = 'atom://test-package-result'
     // open the editor
@@ -101,7 +100,7 @@ export default {
         if (testPackageView instanceof TestPackageView)
         {
           // call to method of result view class
-          testPackageView.renderAnswer(objective);
+          testPackageView.renderAnswer(objectiveArray);
           // to activate the previous editor
           atom.workspace.activatePreviousPane();
         }

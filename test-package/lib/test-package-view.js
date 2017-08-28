@@ -3,19 +3,18 @@
 export default class TestPackageView {
 
   constructor(serializedState) {
+
+
     // Create root element
     this.element = document.createElement('div');
     this.element.classList.add('test-package');
-    // Create message element
+
+    // Create objectives message element
     const message = document.createElement('div');
-    message.textContent = "good work buddy, view created";
-    message.classList.add('message');
+    message.classList.add('objectives');
     this.element.appendChild(message);
 
   }
-
-  // Returns an object that can be retrieved when package is activated
-  serialize() {}
 
   // Tear down any state and detach
   destroy() {
@@ -44,6 +43,7 @@ export default class TestPackageView {
     return ['left', 'right', 'bottom'];
   }
 
+  // to restore the view of the package
   serialize() {
     return {
       // This is used to look up the deserializer function. It can be any string, but it needs to be
@@ -52,7 +52,17 @@ export default class TestPackageView {
     };
   }
 
-  renderAnswer(objective){
-    console.log(objective);
+  // function to display the objectives on the result view
+  renderAnswer(objectiveArray){
+    htmlMessage = "";
+    var i=0;
+    while(i<objectiveArray.length)
+    {
+      htmlMessage += "<li> <input type='checkbox'> <b>" + objectiveArray[i] + "</b></li>"
+      i++;
+    }
+    htmlMessage = "<ul>" + htmlMessage + "</ul>";
+    document.querySelector("div.objectives").innerHTML = htmlMessage;
   }
+
 }
