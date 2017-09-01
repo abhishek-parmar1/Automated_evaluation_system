@@ -1,6 +1,2 @@
-1> create proper api request 
-2> get proper response format to display (object) 
-3> create view for the resonse to display
-	1> divide the editor screen in two parts  
-	2> right view contains the objectives with check boxes
-
+1>	Add the scroll feature to view.
+2>	Add event listener to track user moment.

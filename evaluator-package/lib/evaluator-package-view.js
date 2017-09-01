@@ -3,6 +3,7 @@
 export default class EvaluatorPackageView {
 
   constructor(serializedState) {
+
     // Create root element
       this.element = document.createElement('div');
       this.element.classList.add('test-package');
@@ -46,7 +47,7 @@ export default class EvaluatorPackageView {
         // objectives
         const objective = document.createElement('div');
         objective.classList.add('project-objectives');
-        objective.innerHTML = "<hr>";
+        objective.innerHTML = "<hr><h1>Objectives : </h1>";
         body.appendChild(objective);
 
       // create project footer view
@@ -99,39 +100,32 @@ export default class EvaluatorPackageView {
 
   // function to display the objectives on the result view
   renderAnswer(apiResponse){
-    console.log("Called")
     apiResponse = JSON.parse(apiResponse);
+    projectObject = apiResponse["result"]["project"];
 
-    projectName = apiResponse["result"]["project"]["projectName"];
+    var getProjectDataHtml = function (objectType) {
+      var temp = {
+        [objectType]:""
+       };
+      if(objectType == "assets")
+        for(item in projectObject[objectType][objectType])
+          temp[objectType] += "<p>" + projectObject[objectType][objectType][item]["name"] + "</p>";
+      if(objectType == "extraDetails" || objectType == "skills")
+        for(item in projectObject[objectType])
+          temp[objectType] += "<p>" + projectObject[objectType][item] + "</p>";
+      if(objectType == "module")
+      for(item in projectObject[objectType])
+        temp[objectType] += "<p><input type='checkbox'>&nbsp;" + projectObject[objectType][item]["moduleName"] + "</p>";
+      return temp[objectType];
+    }
 
-    projectDescription = apiResponse["result"]["project"]["projectDescription"];
-
-    assetArray = apiResponse["result"]["project"]["assets"]["assets"];
-    assetHtml = "";
-    for(asset in assetArray)
-      assetHtml += "<p>" + assetArray[asset]["name"] + "</p>";
-
-    extraDetails =  apiResponse["result"]["project"]["extraDetails"];
-    extraHtml = "";
-    for(extra in extraDetails)
-      extraHtml += "<p>" + extra + " : " + extraDetails[extra] + "</p>";
-
-    skillArray = apiResponse["result"]["project"]["skills"];
-    skillHtml = "";
-    for(skill in skillArray)
-      skillHtml += "<p>" + skillArray[skill] + "</p>";
-
-    objectivesArray = apiResponse["result"]["project"]["module"];
-    objectiveHtml = "";
-    for(objective in objectivesArray)
-      objectiveHtml += "<p><input type='checkbox'>&nbsp;" + objectivesArray[objective]["moduleName"] + "</p>";
-
-    document.querySelector("span.project-title").innerHTML += "<h2>" + projectName + "</h2>";
-    document.querySelector("span.project-description").innerHTML += "<h3>" + projectDescription + "</h3>";
-    document.querySelector("div.project-asset").innerHTML += assetHtml;
-    document.querySelector("div.project-skill").innerHTML += skillHtml;
-    document.querySelector("div.project-objectives").innerHTML += objectiveHtml;
-    document.querySelector("div.project-extra-detail").innerHTML += extraHtml;
+    document.querySelector("span.project-title").innerHTML += "<h2>" + projectObject["projectName"] + "</h2>";
+    document.querySelector("span.project-description").innerHTML += "<h3>" + projectObject["projectDescription"] + "</h3>";
+    document.querySelector("div.project-asset").innerHTML += getProjectDataHtml("assets");
+    document.querySelector("div.project-skill").innerHTML += getProjectDataHtml("skills");
+    document.querySelector("div.project-objectives").innerHTML += getProjectDataHtml("module");
+    document.querySelector("div.project-extra-detail").innerHTML += getProjectDataHtml("extraDetails");
+    console.log("view created");
   }
 
 }

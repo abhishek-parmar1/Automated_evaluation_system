@@ -1,0 +1,21 @@
+{
+  "name": "bandwidth",
+  "main": "./lib/bandwidth",
+  "version": "0.0.0",
+  "description": "Get All the list of network info on your status bar",
+  "keywords": [
+  ],
+  "consumedServices": {
+    "status-bar": {
+      "versions": {
+        "^1.0.0": "consumeStatusBarService"
+      }}
+    },
+  "repository": "https://github.com/atom/bandwidth",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+  }
+}

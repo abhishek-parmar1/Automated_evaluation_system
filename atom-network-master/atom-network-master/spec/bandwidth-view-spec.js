@@ -1,8 +1,8 @@
 'use babel';
 
-import TestPackageView from '../lib/test-package-view';
+import BandwidthView from '../lib/bandwidth-view';
 
-describe('TestPackageView', () => {
+describe('BandwidthView', () => {
   it('has one valid test', () => {
     expect('life').toBe('easy');
   });

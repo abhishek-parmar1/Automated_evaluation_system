@@ -1,44 +1,44 @@
 'use babel';
 
-import TestPackage from '../lib/test-package';
+import Bandwidth from '../lib/bandwidth';
 
 // Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 //
 // To run a specific `it` or `describe` block add an `f` to the front (e.g. `fit`
 // or `fdescribe`). Remove the `f` to unfocus the block.
 
-describe('TestPackage', () => {
+describe('Bandwidth', () => {
   let workspaceElement, activationPromise;
 
   beforeEach(() => {
     workspaceElement = atom.views.getView(atom.workspace);
-    activationPromise = atom.packages.activatePackage('test-package');
+    activationPromise = atom.packages.activatePackage('bandwidth');
   });
 
-  describe('when the test-package:toggle event is triggered', () => {
+  describe('when the bandwidth:toggle event is triggered', () => {
     it('hides and shows the modal panel', () => {
       // Before the activation event the view is not on the DOM, and no panel
       // has been created
-      expect(workspaceElement.querySelector('.test-package')).not.toExist();
+      expect(workspaceElement.querySelector('.bandwidth')).not.toExist();
 
       // This is an activation event, triggering it will cause the package to be
       // activated.
-      atom.commands.dispatch(workspaceElement, 'test-package:toggle');
+      atom.commands.dispatch(workspaceElement, 'bandwidth:toggle');
 
       waitsForPromise(() => {
         return activationPromise;
       });
 
       runs(() => {
-        expect(workspaceElement.querySelector('.test-package')).toExist();
+        expect(workspaceElement.querySelector('.bandwidth')).toExist();
 
-        let testPackageElement = workspaceElement.querySelector('.test-package');
-        expect(testPackageElement).toExist();
+        let bandwidthElement = workspaceElement.querySelector('.bandwidth');
+        expect(bandwidthElement).toExist();
 
-        let testPackagePanel = atom.workspace.panelForItem(testPackageElement);
-        expect(testPackagePanel.isVisible()).toBe(true);
-        atom.commands.dispatch(workspaceElement, 'test-package:toggle');
-        expect(testPackagePanel.isVisible()).toBe(false);
+        let bandwidthPanel = atom.workspace.panelForItem(bandwidthElement);
+        expect(bandwidthPanel.isVisible()).toBe(true);
+        atom.commands.dispatch(workspaceElement, 'bandwidth:toggle');
+        expect(bandwidthPanel.isVisible()).toBe(false);
       });
     });
 
@@ -51,11 +51,11 @@ describe('TestPackage', () => {
       // workspaceElement to the DOM are generally slower than those off DOM.
       jasmine.attachToDOM(workspaceElement);
 
-      expect(workspaceElement.querySelector('.test-package')).not.toExist();
+      expect(workspaceElement.querySelector('.bandwidth')).not.toExist();
 
       // This is an activation event, triggering it causes the package to be
       // activated.
-      atom.commands.dispatch(workspaceElement, 'test-package:toggle');
+      atom.commands.dispatch(workspaceElement, 'bandwidth:toggle');
 
       waitsForPromise(() => {
         return activationPromise;
@@ -63,10 +63,10 @@ describe('TestPackage', () => {
 
       runs(() => {
         // Now we can test for view visibility
-        let testPackageElement = workspaceElement.querySelector('.test-package');
-        expect(testPackageElement).toBeVisible();
-        atom.commands.dispatch(workspaceElement, 'test-package:toggle');
-        expect(testPackageElement).not.toBeVisible();
+        let bandwidthElement = workspaceElement.querySelector('.bandwidth');
+        expect(bandwidthElement).toBeVisible();
+        atom.commands.dispatch(workspaceElement, 'bandwidth:toggle');
+        expect(bandwidthElement).not.toBeVisible();
       });
     });
   });
