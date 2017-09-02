@@ -54,7 +54,11 @@ export default {
     this.download(selection).then( apiResponse => {
           console.log("api call successful");
           // call the method to display the result
-          this.showResult(apiResponse);
+          this.showResult(apiResponse).then( viewResponse => {
+            console.log("back to functionality");
+            // to activate the previous editor
+            atom.workspace.activatePreviousPane();
+          });
         }).catch( error => {
           // if error in response display the error message on the modal
           atom.notifications.addWarning(error.reason);
@@ -93,18 +97,26 @@ export default {
 
   // function to show the result in the resut view
   showResult(apiResponse){
-    // resgistered uri of the result view
-    uri = 'atom://evaluator-package-result'
-    // open the editor
-    atom.workspace.open(uri, split= 'right', searchAllPanes= true).then( evaluatorPackageView => {
-        if (evaluatorPackageView instanceof EvaluatorPackageView)
-        {
-          // call to method of result view class
-          evaluatorPackageView.renderAnswer(apiResponse);
-          // to activate the previous editor
-          atom.workspace.activatePreviousPane();
-        }
-      });
+    // return the value obtained after the api request using promises
+    return new Promise( ( resolve, reject) => {
+      // resgistered uri of the result view
+      uri = 'atom://evaluator-package-result'
+      // open the editor
+      atom.workspace.open(uri, split= 'right', searchAllPanes= true).then( evaluatorPackageView => {
+          if (evaluatorPackageView instanceof EvaluatorPackageView)
+          {
+            // call to method of result view class
+            evaluatorPackageView.renderAnswer(apiResponse);
+            resolve('view created');
+          }
+          else {
+            // resturn error object for error
+            reject({
+              reason: 'Unable to create page view'
+            });
+          }
+        });
+    });
   }
 
 };

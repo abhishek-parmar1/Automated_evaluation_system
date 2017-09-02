@@ -126,6 +126,7 @@ export default class EvaluatorPackageView {
     document.querySelector("div.project-objectives").innerHTML += getProjectDataHtml("module");
     document.querySelector("div.project-extra-detail").innerHTML += getProjectDataHtml("extraDetails");
     console.log("view created");
+    return;
   }
 
 }
