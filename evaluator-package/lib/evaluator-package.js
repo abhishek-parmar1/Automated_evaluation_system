@@ -74,7 +74,7 @@ export default {
     var options = {
       url: url,
       headers: {
-        'sessionid' : 'ushtml0018uvkcod133aq39bnk'
+        'sessionid' : 'ffpjqrrbhnslnge4n3lv66orie'
       }
     };
     // return the value obtained after the api request using promises
