@@ -56,13 +56,13 @@ export default {
           // call the method to display the result
           this.showResult(apiResponse).then( viewResponse => {
             console.log("back to functionality");
-            // to activate the previous editor
-            atom.workspace.activatePreviousPane();
           });
         }).catch( error => {
           // if error in response display the error message on the modal
           atom.notifications.addWarning(error.reason);
         });
+    // call the function to track user movement
+    this.trackUser();
     }
   },
 
@@ -97,7 +97,7 @@ export default {
 
   // function to show the result in the resut view
   showResult(apiResponse){
-    // return the value obtained after the api request using promises
+    // using promise to call the result view function
     return new Promise( ( resolve, reject) => {
       // resgistered uri of the result view
       uri = 'atom://evaluator-package-result'
@@ -116,6 +116,18 @@ export default {
             });
           }
         });
+    });
+  },
+
+  trackUser(){
+    // get the current editor instance
+    editor = atom.workspace.getActiveTextEditor();
+    // observe the editor
+    atom.workspace.observeTextEditors( editor => {
+      editor.onDidStopChanging( () => {
+        var text = editor.getText();
+        console.log(text);
+      });
     });
   }
 

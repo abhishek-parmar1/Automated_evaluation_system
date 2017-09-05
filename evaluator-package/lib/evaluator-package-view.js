@@ -100,9 +100,11 @@ export default class EvaluatorPackageView {
 
   // function to display the objectives on the result view
   renderAnswer(apiResponse){
+    // convert the response to object
     apiResponse = JSON.parse(apiResponse);
+    // get the project details object from response
     projectObject = apiResponse["result"]["project"];
-
+    // function to get the particular type of details from the project details object
     var getProjectDataHtml = function (objectType) {
       var temp = {
         [objectType]:""
@@ -119,6 +121,7 @@ export default class EvaluatorPackageView {
       return temp[objectType];
     }
 
+    // show the data on the view of the package
     document.querySelector("span.project-title").innerHTML += "<h2>" + projectObject["projectName"] + "</h2>";
     document.querySelector("span.project-description").innerHTML += "<h3>" + projectObject["projectDescription"] + "</h3>";
     document.querySelector("div.project-asset").innerHTML += getProjectDataHtml("assets");
