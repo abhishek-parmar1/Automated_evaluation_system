@@ -117,7 +117,7 @@ export default class EvaluatorPackageView {
           temp[objectType] += "<p>" + projectObject[objectType][item] + "</p>";
       if(objectType == "module")
       for(item in projectObject[objectType])
-        temp[objectType] += "<p><input type='checkbox'>&nbsp;" + projectObject[objectType][item]["moduleName"] + "</p>";
+        temp[objectType] += "<p><input type='checkbox' id='objective-item" + item + "' >&nbsp;" + projectObject[objectType][item]["moduleName"] + "</p>";
       return temp[objectType];
     }
 
