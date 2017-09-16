@@ -1,2 +1,2 @@
-1>	notifications
+1>	
 2>	access tree view

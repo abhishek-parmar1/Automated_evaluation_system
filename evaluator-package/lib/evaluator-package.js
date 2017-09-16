@@ -3,6 +3,7 @@
 import EvaluatorPackageView from './evaluator-package-view';
 import { CompositeDisposable, Disposable  } from 'atom';
 import request from 'request'
+fs = require('fs-plus')
 
 export default {
 
@@ -63,6 +64,12 @@ export default {
         });
     // call the function to track user movement
     this.trackUser();
+    /////////////////tesing code///////////////////////////
+    var object = atom.project;
+    root_path = object['rootDirectories'][0]['realPath'];
+    console.log(fs.listTreeSync(root_path));
+    console.log("completed");
+    ////////////////////////////////////////////////////////
     }
   },
 
@@ -74,7 +81,7 @@ export default {
     var options = {
       url: url,
       headers: {
-        'sessionid' : 'kljks71cokmkr8n16io8p4uqle'
+        'sessionid' : 'ttfro6401v022pm2i1uaho9fqt'
       }
     };
     // return the value obtained after the api request using promises
