@@ -105,7 +105,7 @@ export default class EvaluatorPackageView {
     // get the project details object from response
     projectObject = apiResponse["result"]["project"];
     // function to get the particular type of details from the project details object
-    var getProjectDataHtml = function (objectType) {
+    var getProjectDataHtml = objectType => {
       var temp = {
         [objectType]:""
        };

@@ -74,7 +74,7 @@ export default {
     var options = {
       url: url,
       headers: {
-        'sessionid' : 'ffpjqrrbhnslnge4n3lv66orie'
+        'sessionid' : 'kljks71cokmkr8n16io8p4uqle'
       }
     };
     // return the value obtained after the api request using promises
@@ -126,7 +126,7 @@ export default {
     atom.workspace.observeTextEditors( editor => {
       editor.onDidStopChanging( () => {
         var text = editor.getText();
-        console.log(text);
+        atom.notifications.addWarning(text);
       });
     });
   }
