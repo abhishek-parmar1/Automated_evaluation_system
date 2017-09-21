@@ -1,0 +1,26 @@
+{
+  "context-menu": {
+    "atom-text-editor": [
+      {
+        "label": "Fetch Code",
+        "command": "evaluator-package:fetch"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "evaluator-package",
+          "submenu": [
+            {
+              "label": "Fetch Code",
+              "command": "evaluator-package:fetch"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
