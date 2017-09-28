@@ -64,12 +64,59 @@ export default {
         });
     // call the function to track user movement
     this.trackUser();
-    /////////////////tesing code///////////////////////////
+    /////////////////tesing code//////////////////////////////////////////////////////////////////////////////////////////
+    // object to store tree view
+    treeView = {};
+    // function to create tree view
+    var merge = (treeView,tempView) =>{
+      // temp View has a single key always
+      key = Object.keys(tempView);
+      // if key not present then add it to treeView object
+      if(Object.keys(treeView).indexOf(key[0]) == -1)
+      {
+        treeView[key] = tempView[key];
+      }
+      // if key present then search for child key int treeView object
+      else
+      {
+        merge(treeView[key],tempView[key]);
+      }
+    }
+    // return the details of the current project in atom
     var object = atom.project;
+    // get the path of the project folder in the atom
     root_path = object['rootDirectories'][0]['realPath'];
-    console.log(fs.listTreeSync(root_path));
-    console.log("completed");
-    ////////////////////////////////////////////////////////
+    // get the project folder name
+    projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
+    // get the paths of all the files in the project folder
+    arrayOfFiles = fs.listTreeSync(root_path);
+    //iterate over list of paths in project
+    for(item in arrayOfFiles)
+    {
+      // relative path = path according to tree view from project
+      itemRelativePathArray = arrayOfFiles[item].substring(arrayOfFiles[item].lastIndexOf(projectFolderName));
+      itemRelativePathArray = itemRelativePathArray.split("\\");
+      // actual path = original path of file on system
+      itemActualPath = arrayOfFiles[item];
+      // if path is of file
+      if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1)
+      {
+        // create temp object of file
+        for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
+        {
+          if(i == itemRelativePathArray.length - 1)
+            tempView = { [itemRelativePathArray[i]] : itemActualPath};        // assign the value
+          else
+            tempView = { [itemRelativePathArray[i]] : tempView};          //put the previous object
+        }
+        // merge current path object with original treeView object
+        merge(treeView,tempView);
+        // reset the temp object
+        tempView = {};
+      }
+    }
+    console.log(treeView);
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
   },
 
