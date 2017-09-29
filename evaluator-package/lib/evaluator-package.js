@@ -116,6 +116,10 @@ export default {
       }
     }
     console.log(treeView);
+    // to open any file in atom using its path
+    path = treeView["test folder"]["test file 1.txt"];
+    atom.workspace.open(path);
+    console.log(path);
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
   },
