@@ -2,9 +2,8 @@
 
 import EvaluatorPackageView from './evaluator-package-view';
 import { CompositeDisposable, Disposable  } from 'atom';
-import request from 'request'
 fs = require('fs-plus')
-
+request = require('request');
 export default {
 
   subscriptions: null,
@@ -64,11 +63,23 @@ export default {
         });
     // call the function to track user movement
     this.trackUser();
-    /////////////////tesing code//////////////////////////////////////////////////////////////////////////////////////////
-    // object to store tree view
-    treeView = {};
+    dataElement = {
+      "html":{},
+      "css":{},
+      "js":{}
+    };
+    // object to store tree view call this function when user created any new file
+    treeView = this.updateTreeView(dataElement);
+    console.log(treeView);
+    console.log(dataElement);
+    }
+  },
+
+  // function to create and update tree view and add watcher on a file
+  updateTreeView(dataElement) {
+    let treeView ={};
     // function to create tree view
-    var merge = (treeView,tempView) =>{
+    let merge = (treeView,tempView) =>{
       // temp View has a single key always
       key = Object.keys(tempView);
       // if key not present then add it to treeView object
@@ -83,24 +94,43 @@ export default {
       }
     }
     // return the details of the current project in atom
-    var object = atom.project;
+    let object = atom.project;
     // get the path of the project folder in the atom
-    root_path = object['rootDirectories'][0]['realPath'];
+    let root_path = object['rootDirectories'][0]['realPath'];
     // get the project folder name
-    projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
+    let projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
     // get the paths of all the files in the project folder
-    arrayOfFiles = fs.listTreeSync(root_path);
+    let arrayOfFiles = fs.listTreeSync(root_path);
     //iterate over list of paths in project
     for(item in arrayOfFiles)
     {
       // relative path = path according to tree view from project
-      itemRelativePathArray = arrayOfFiles[item].substring(arrayOfFiles[item].lastIndexOf(projectFolderName));
+      let itemRelativePathArray = arrayOfFiles[item].substring(arrayOfFiles[item].lastIndexOf(projectFolderName));
       itemRelativePathArray = itemRelativePathArray.split("\\");
       // actual path = original path of file on system
-      itemActualPath = arrayOfFiles[item];
+      let itemActualPath = arrayOfFiles[item];
       // if path is of file
       if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1)
       {
+        fs.watchFile(itemActualPath, (curr,prev) => {
+          if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
+          {
+            fs.readFile(itemActualPath, "utf8", (err,data) => {
+              dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+            });
+          }
+          if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
+            fs.readFile(itemActualPath, "utf8", (err,data) => {
+              dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+            });
+          }
+          if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
+            fs.readFile(itemActualPath, "utf8", (err,data) => {
+              dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+            });
+          }
+          console.log(dataElement);
+        });
         // create temp object of file
         for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
         {
@@ -115,19 +145,11 @@ export default {
         tempView = {};
       }
     }
-    console.log(treeView);
-    // to open any file in atom using its path
-    path = treeView["test folder"]["test file 1.txt"];
-    atom.workspace.open(path);
-    console.log(path);
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    }
+    return treeView;
   },
 
   // function to request the api
   download(url) {
-    // a request variable which uses request
-    var request = require('request');
     // request structure
     var options = {
       url: url,
