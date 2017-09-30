@@ -131,6 +131,23 @@ export default {
           }
           console.log(dataElement);
         });
+        if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
+        {
+          fs.readFile(itemActualPath, "utf8", (err,data) => {
+            dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+          });
+        }
+        if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
+          fs.readFile(itemActualPath, "utf8", (err,data) => {
+            dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+          });
+        }
+        if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
+          fs.readFile(itemActualPath, "utf8", (err,data) => {
+            dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+          });
+        }
+
         // create temp object of file
         for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
         {
