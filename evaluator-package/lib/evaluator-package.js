@@ -4,6 +4,12 @@ import EvaluatorPackageView from './evaluator-package-view';
 import { CompositeDisposable, Disposable  } from 'atom';
 fs = require('fs-plus')
 request = require('request');
+var treeView ={};
+var dataElement = {
+  "html":{},
+  "css":{},
+  "js":{}
+};
 export default {
 
   subscriptions: null,
@@ -63,21 +69,24 @@ export default {
         });
     // call the function to track user movement
     this.trackUser();
+    // object to store tree view call this function when user activate the package
+    this.updateTreeView();
+    // object to store tree view call this function when user add a new file
+    atom.workspace.onDidAddTextEditor((event) => {
+      console.log(event);
+      this.updateTreeView();
+    });
+    }
+  },
+
+  // function to create and update tree view and add watcher on a file
+  updateTreeView() {
+    treeView ={};
     dataElement = {
       "html":{},
       "css":{},
       "js":{}
     };
-    // object to store tree view call this function when user created any new file
-    treeView = this.updateTreeView(dataElement);
-    console.log(treeView);
-    console.log(dataElement);
-    }
-  },
-
-  // function to create and update tree view and add watcher on a file
-  updateTreeView(dataElement) {
-    let treeView ={};
     // function to create tree view
     let merge = (treeView,tempView) =>{
       // temp View has a single key always
@@ -101,6 +110,7 @@ export default {
     let projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
     // get the paths of all the files in the project folder
     let arrayOfFiles = fs.listTreeSync(root_path);
+    //console.log(arrayOfFiles);
     //iterate over list of paths in project
     for(item in arrayOfFiles)
     {
@@ -129,6 +139,7 @@ export default {
               dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
             });
           }
+          console.log(treeView);
           console.log(dataElement);
         });
         if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
@@ -162,7 +173,8 @@ export default {
         tempView = {};
       }
     }
-    return treeView;
+    console.log(treeView);
+    console.log(dataElement);
   },
 
   // function to request the api
