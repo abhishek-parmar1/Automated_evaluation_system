@@ -117,6 +117,23 @@ export default {
       }
     }
 
+    // function to create tree view
+    let deleteFile = (treeView, tempView, type) =>{
+      // temp View has a single key always
+      key = Object.keys(tempView);
+      // if key not present then add it to treeView object
+      if(treeView[key[0]] == tempView[key[0]])
+      {
+        if(type == "uplink")
+          delete treeView[key];
+      }
+      // if key present then search for child key int treeView object
+      else
+      {
+        deleteFile(treeView[key], tempView[key], type);
+      }
+    }
+
     let update = (path, type) => {
       // return the details of the current project in atom
       let object = atom.project;
@@ -130,7 +147,7 @@ export default {
       // actual path = original path of file on system
       let itemActualPath = path;
       // if path is of file
-      if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1)
+      if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1 && type != "uplink")
       {
         if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
         {
@@ -162,6 +179,33 @@ export default {
         // reset the temp object
         tempView = {};
       }
+
+      if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1 && type == "uplink")
+      {
+        if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
+        {
+          delete  dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]];
+        }
+        if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
+          delete  dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]];
+        }
+        if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
+          delete  dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]];
+        }
+        // create temp object of file
+        for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
+        {
+          if(i == itemRelativePathArray.length - 1)
+            tempView = { [itemRelativePathArray[i]] : itemActualPath};        // assign the value
+          else
+            tempView = { [itemRelativePathArray[i]] : tempView};          //put the previous object
+        }
+        // merge current path object with original treeView object
+        if(type != "change")
+          deleteFile(treeView, tempView, type);
+        // reset the temp object
+        tempView = {};
+      }
       console.log(treeView);
       console.log(dataElement);
     }
@@ -172,7 +216,7 @@ export default {
     }
     if( type=="uplink")
     {
-      //update(path, "uplink");
+      update(path, "uplink");
     }
     if( type=="change")
     {
