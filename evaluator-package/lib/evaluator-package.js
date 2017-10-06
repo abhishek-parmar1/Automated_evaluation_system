@@ -2,14 +2,18 @@
 
 import EvaluatorPackageView from './evaluator-package-view';
 import { CompositeDisposable, Disposable  } from 'atom';
-fs = require('fs-plus')
-request = require('request');
+
+var _fs_plus = require('fs-plus')
+var _request = require('request');
+var _chokidar = require('chokidar');
+
 var treeView ={};
 var dataElement = {
   "html":{},
   "css":{},
   "js":{}
 };
+
 export default {
 
   subscriptions: null,
@@ -69,96 +73,81 @@ export default {
         });
     // call the function to track user movement
     this.trackUser();
-    // object to store tree view call this function when user activate the package
-    this.updateTreeView();
-    // object to store tree view call this function when user add a new file
-    atom.workspace.onDidAddTextEditor((event) => {
-      console.log(event);
-      this.updateTreeView();
-    });
+    /////////////////////////////////////////TESTING CODE//////////////////////////////////////////////////////////
+    // on add new file and delete a file or change a file
+    this.trackProject();
     }
   },
 
+  trackProject() {
+    // return the details of the current project in atom
+    let object = atom.project;
+    // get the path of the project folder in the atom
+    let root_path = object['rootDirectories'][0]['realPath'];
+
+    //console.log(root_path);
+    var watcher = _chokidar.watch(root_path, {
+      ignored: /(^|[\/\\])\../,
+      persistent: true
+    });
+
+    watcher
+    .on('add', path => this.updateTreeView(path, "add"))
+    .on('change', path => this.updateTreeView(path, "change"))
+    .on('unlink', path => this.updateTreeView(path,"uplink"));
+  },
+
   // function to create and update tree view and add watcher on a file
-  updateTreeView() {
-    treeView ={};
-    dataElement = {
-      "html":{},
-      "css":{},
-      "js":{}
-    };
+  updateTreeView(path, type) {
+
     // function to create tree view
-    let merge = (treeView,tempView) =>{
+    let merge = (treeView, tempView, type) =>{
       // temp View has a single key always
       key = Object.keys(tempView);
       // if key not present then add it to treeView object
       if(Object.keys(treeView).indexOf(key[0]) == -1)
       {
-        treeView[key] = tempView[key];
+        if(type == "add")
+          treeView[key] = tempView[key];
       }
       // if key present then search for child key int treeView object
       else
       {
-        merge(treeView[key],tempView[key]);
+        merge(treeView[key], tempView[key], type);
       }
     }
-    // return the details of the current project in atom
-    let object = atom.project;
-    // get the path of the project folder in the atom
-    let root_path = object['rootDirectories'][0]['realPath'];
-    // get the project folder name
-    let projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
-    // get the paths of all the files in the project folder
-    let arrayOfFiles = fs.listTreeSync(root_path);
-    //console.log(arrayOfFiles);
-    //iterate over list of paths in project
-    for(item in arrayOfFiles)
-    {
+
+    let update = (path, type) => {
+      // return the details of the current project in atom
+      let object = atom.project;
+      // get the path of the project folder in the atom
+      let root_path = object['rootDirectories'][0]['realPath'];
+      // get the project folder name
+      let projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
       // relative path = path according to tree view from project
-      let itemRelativePathArray = arrayOfFiles[item].substring(arrayOfFiles[item].lastIndexOf(projectFolderName));
+      let itemRelativePathArray = path.substring(path.lastIndexOf(projectFolderName));
       itemRelativePathArray = itemRelativePathArray.split("\\");
       // actual path = original path of file on system
-      let itemActualPath = arrayOfFiles[item];
+      let itemActualPath = path;
       // if path is of file
       if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1)
       {
-        fs.watchFile(itemActualPath, (curr,prev) => {
-          if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
-          {
-            fs.readFile(itemActualPath, "utf8", (err,data) => {
-              dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
-            });
-          }
-          if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
-            fs.readFile(itemActualPath, "utf8", (err,data) => {
-              dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
-            });
-          }
-          if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
-            fs.readFile(itemActualPath, "utf8", (err,data) => {
-              dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
-            });
-          }
-          console.log(treeView);
-          console.log(dataElement);
-        });
         if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
         {
-          fs.readFile(itemActualPath, "utf8", (err,data) => {
+          _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
             dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
           });
         }
         if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
-          fs.readFile(itemActualPath, "utf8", (err,data) => {
+          _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
             dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
           });
         }
         if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
-          fs.readFile(itemActualPath, "utf8", (err,data) => {
+          _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
             dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
           });
         }
-
         // create temp object of file
         for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
         {
@@ -168,15 +157,29 @@ export default {
             tempView = { [itemRelativePathArray[i]] : tempView};          //put the previous object
         }
         // merge current path object with original treeView object
-        merge(treeView,tempView);
+        if(type != "change")
+          merge(treeView, tempView, type);
         // reset the temp object
         tempView = {};
       }
+      console.log(treeView);
+      console.log(dataElement);
     }
-    console.log(treeView);
-    console.log(dataElement);
-  },
 
+    if( type=="add")
+    {
+      update(path, "add");
+    }
+    if( type=="uplink")
+    {
+      //update(path, "uplink");
+    }
+    if( type=="change")
+    {
+      update(path, "change");
+    }
+  },
+////////////////////////////////////////////////////////////////////////////////////////////
   // function to request the api
   download(url) {
     // request structure
@@ -189,7 +192,7 @@ export default {
     // return the value obtained after the api request using promises
     return new Promise( ( resolve, reject) => {
       // request to api
-      request( options, ( error, response, body) => {
+      _request( options, ( error, response, body) => {
         if(!error && response.statusCode == 200) {
           // return response
           resolve(body);

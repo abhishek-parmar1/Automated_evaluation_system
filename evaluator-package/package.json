@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "request": "^2.73.0",
-    "fs-plus": "3.0.1"
+    "fs-plus": "3.0.1",
+    "file-system": "2.2.2",
+    "chokidar": "1.7.0"
   },
   "deserializers": {
     "evaluator-package/EvaluatorPackageView": "deserializeEvaluatorPackageView"

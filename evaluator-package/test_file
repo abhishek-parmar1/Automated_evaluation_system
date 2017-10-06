@@ -1,0 +1,224 @@
+// on add new file and delete a file or change a file
+this.trackProject();
+}
+},
+
+trackProject() {
+// return the details of the current project in atom
+let object = atom.project;
+// get the path of the project folder in the atom
+let root_path = object['rootDirectories'][0]['realPath'];
+
+//console.log(root_path);
+var watcher = _chokidar.watch(root_path, {
+  ignored: /(^|[\/\\])\../,
+  persistent: true
+});
+
+watcher
+.on('add', path => this.updateTreeView(path, "add"))
+.on('change', path => this.updateTreeView(path, "change"))
+.on('unlink', path => this.updateTreeView(path,"uplink"));
+},
+
+// function to create and update tree view and add watcher on a file
+updateTreeView(path, type) {
+
+// function to create tree view
+let merge = (treeView,tempView) =>{
+  // temp View has a single key always
+  key = Object.keys(tempView);
+  // if key not present then add it to treeView object
+  if(Object.keys(treeView).indexOf(key[0]) == -1)
+  {
+    treeView[key] = tempView[key];
+  }
+  // if key present then search for child key int treeView object
+  else
+  {
+    merge(treeView[key],tempView[key]);
+  }
+}
+
+let update = () => {
+  // return the details of the current project in atom
+  let object = atom.project;
+  // get the path of the project folder in the atom
+  let root_path = object['rootDirectories'][0]['realPath'];
+  // get the project folder name
+  let projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
+  // get the paths of all the files in the project folder
+  let arrayOfFiles = _fs_plus.listTreeSync(root_path);
+  //iterate over list of paths in project
+  for(item in arrayOfFiles)
+  {
+    // relative path = path according to tree view from project
+    let itemRelativePathArray = arrayOfFiles[item].substring(arrayOfFiles[item].lastIndexOf(projectFolderName));
+    itemRelativePathArray = itemRelativePathArray.split("\\");
+    // actual path = original path of file on system
+    let itemActualPath = arrayOfFiles[item];
+    // if path is of file
+    if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1)
+    {
+      if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
+      {
+        _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+          dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+        });
+      }
+      if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
+        _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+          dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+        });
+      }
+      if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
+        _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+          dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+        });
+      }
+      // create temp object of file
+      for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
+      {
+        if(i == itemRelativePathArray.length - 1)
+          tempView = { [itemRelativePathArray[i]] : itemActualPath};        // assign the value
+        else
+          tempView = { [itemRelativePathArray[i]] : tempView};          //put the previous object
+      }
+      // merge current path object with original treeView object
+      merge(treeView,tempView);
+      // reset the temp object
+      tempView = {};
+    }
+  }
+  console.log("on first time load");
+  console.log(treeView);
+  console.log(dataElement);
+}
+
+if( path=="" && type=="")
+{
+  treeView ={};
+  dataElement = {
+    "html":{},
+    "css":{},
+    "js":{}
+  };
+  update();
+}
+if( type=="add")
+{
+  // return the details of the current project in atom
+  let object = atom.project;
+  // get the path of the project folder in the atom
+  let root_path = object['rootDirectories'][0]['realPath'];
+  // get the project folder name
+  let projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
+  // relative path = path according to tree view from project
+  let itemRelativePathArray = path.substring(path.lastIndexOf(projectFolderName));
+  itemRelativePathArray = itemRelativePathArray.split("\\");
+  // actual path = original path of file on system
+  let itemActualPath = path;
+  var tempView = {}
+  // if path is of file
+  if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1)
+  {
+    // create temp object of file
+    for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
+    {
+      if(i == itemRelativePathArray.length - 1)
+        tempView = { [itemRelativePathArray[i]] : itemActualPath};        // assign the value
+      else
+        tempView = { [itemRelativePathArray[i]] : tempView};          //put the previous object
+    }
+    // merge current path object with original treeView object
+    merge(treeView,tempView);
+  }
+  console.log("new file added");
+  console.log(treeView);
+  console.log(dataElement);
+
+}
+if( type=="uplink")
+{
+  console.log(path);
+}
+if( type=="change")
+{
+  console.log(path);
+}
+
+/*
+// return the details of the current project in atom
+let object = atom.project;
+// get the path of the project folder in the atom
+let root_path = object['rootDirectories'][0]['realPath'];
+// get the project folder name
+let projectFolderName = root_path.substring(root_path.lastIndexOf("\\")+1);
+// get the paths of all the files in the project folder
+let arrayOfFiles = _fs_plus.listTreeSync(root_path);
+//console.log(arrayOfFiles);
+//iterate over list of paths in project
+for(item in arrayOfFiles)
+{
+  // relative path = path according to tree view from project
+  let itemRelativePathArray = arrayOfFiles[item].substring(arrayOfFiles[item].lastIndexOf(projectFolderName));
+  itemRelativePathArray = itemRelativePathArray.split("\\");
+  // actual path = original path of file on system
+  let itemActualPath = arrayOfFiles[item];
+  // if path is of file
+  if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".")!=-1)
+  {
+    _fs_plus.watchFile(itemActualPath, (curr,prev) => {
+      if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
+      {
+        _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+          dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+        });
+      }
+      if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
+        _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+          dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+        });
+      }
+      if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
+        _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+          dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+        });
+      }
+      console.log(treeView);
+      console.log(dataElement);
+    });
+    if(itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".html")!=-1)
+    {
+      _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+        dataElement["html"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+      });
+    }
+    if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".css")!=-1) {
+      _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+        dataElement["css"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+      });
+    }
+    if (itemRelativePathArray[itemRelativePathArray.length-1].indexOf(".js")!=-1) {
+      _fs_plus.readFile(itemActualPath, "utf8", (err,data) => {
+        dataElement["js"][itemRelativePathArray[itemRelativePathArray.length-1]] = data;
+      });
+    }
+
+    // create temp object of file
+    for(let i = itemRelativePathArray.length - 1; i >= 0 ; i--)
+    {
+      if(i == itemRelativePathArray.length - 1)
+        tempView = { [itemRelativePathArray[i]] : itemActualPath};        // assign the value
+      else
+        tempView = { [itemRelativePathArray[i]] : tempView};          //put the previous object
+    }
+    // merge current path object with original treeView object
+    merge(treeView,tempView);
+    // reset the temp object
+    tempView = {};
+  }
+}
+console.log(treeView);
+console.log(dataElement);*/
+},
