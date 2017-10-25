@@ -1,5 +1,2 @@
-1> search for index file in project folder
-2> open the index.html
-3> get the script and link files details from the index file
-4> open the files included in index.html
-5> get their content from the atom 
+1> testing js
+2> testing html and css
